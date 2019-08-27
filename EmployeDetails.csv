@@ -1,0 +1,4 @@
+WkNo,Name,Father,Gender,Dob,Mstatus,Address,Mno,UanNo,PfNo,EsiNo,Site,Department,Designation,Catagory,PF_Allowance,ESI_Allowance,ESI_Location,Attendence_Award
+1,SAURAV KUMAR,MITHILESH KUMAR SINGH,Male,30-Apr-95,Married,SHASTRI NAGAR,9709034301,10003546545,0245,440548586,Jamshedpur,HR,Hr,High-Skilled,Yes,Yes,Jamshedpur,Yes
+2,,,,01-Jan-00,,,,,,,,,,,,,,
+3,PUJA BHARTI,MANOJ KUMAR,Female,17-Mar-99,Un-Married,SHASTRI NAGAR,9113151364,1002568923,02356,4405689723,Jamshedpur,Admin,Computer-Operator,Semi-Skilled,Yes,Yes,Jamshedpur,Yes
