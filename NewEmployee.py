@@ -7,8 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QMessageBox
 from MessageBox import Ui_Dialog
+import sqlite3
 import csv
 import os
 from colorama import Fore,Back,Style
@@ -18,29 +18,122 @@ class Ui_DialogNewEmployee(object):
                  'Site','Department','Designation','Catagory','PF_Allowance','ESI_Allowance','ESI_Location','Attendence_Award']
     get_file_path = os.path.join(os.path.dirname(__file__), "EmployeDetails.csv")
     Filename = get_file_path
-
+    get_file_pat = os.path.join(os.path.dirname(__file__), "NewEmployee.db")
+    database = get_file_pat
+    def clearform(self):
+        try:
+            self.lineEdit_name.setText("")
+            self.lineEdit_FatherName.setText("")
+            self.comboBox_Gender.setCurrentText("")
+            self.dateEdit_Dob.setDateTime(QtCore.QDateTime.currentDateTime())
+            self.comboBox_Mstatus.setCurrentText("")
+            self.lineEdit_Address.setText("")
+            self.lineEdit_MobileNo.setText("")
+            self.lineEdit_UanNo.setText("")
+            self.lineEdit_PfNo.setText("")
+            self.lineEdit_EsiNo.setText("")
+            self.comboBox_site.setCurrentText("")
+            self.comboBox_Depart.setCurrentText("")
+            self.comboBox_Desig.setCurrentText("")
+            self.comboBox_Categ.setCurrentText("")
+            self.comboBox_PFAllow.setCurrentText("")
+            self.comboBox_ESIAllow.setCurrentText("")
+            self.comboBox_EsiLocation.setCurrentText("")
+            self.comboBox_AttnAwar_2.setCurrentText("")
+        except Exception as err:
+            mesg = "{err}".format(err = err)
+            DialogNewEmployee.show()
+            self.NewEmployeeWindow = QtWidgets.QDialog()
+            # self.NewEmployeeWindow = QtWidgets.QMainWindow()
+            self.ui = Ui_Dialog(mesg)
+            self.ui.setupUi(self.NewEmployeeWindow)
+            self.NewEmployeeWindow.show()
+    def getdb_length(self):
+        connection = sqlite3.connect('NewEmployee.db')
+        c = connection.cursor()
+        c.execute('SELECT * FROM NewEmployees')
+        count = 1
+        for raw in c.fetchall():
+            count = count + 1
+        return count
+    def Insert_to_Database(self):
+        if not os.path.isfile(self.database):
+            # create Database NewEmployee
+            print(0)
+            connection = sqlite3.connect('NewEmployee.db')
+            c = connection.cursor()
+            '''Fieldname = ['WkNo', 'Name', 'Father', 'Gender', 'Dob', 'Mstatus', 'Address', 'Mno', 'UanNo', 'PfNo', 'EsiNo',
+                     'Site', 'Department', 'Designation', 'Catagory', 'PF_Allowance', 'ESI_Allowance', 'ESI_Location',
+                     'Attendence_Award']'''
+            c.execute("CREATE TABLE NewEmployees (WkNo text, Name text, Father text, Gender text, Dob text, Mstatus text,Address text, Mno real, UanNo real, PfNo real, EsiNo real, Site text, Department text, Designation text,Catagory text, PF_Allowance text, ESI_Allowance text, ESI_Location text, Attendance_Award text)")
+        else:
+            connection = sqlite3.connect('NewEmployee.db')
+            c = connection.cursor()
+            # Create a Dictionary Named as employeeData
+            try:
+                employeeData = {
+                    "wkno": self.LineEdit_WkNo.text(),
+                    "name": self.lineEdit_name.text(),
+                    "father": self.lineEdit_FatherName.text(),
+                    "gender": self.comboBox_Gender.currentText(),
+                    "dob": self.dateEdit_Dob.text(),
+                    "mstatus": self.comboBox_Mstatus.currentText(),
+                    "address": self.lineEdit_Address.text(),
+                    "mno": self.lineEdit_MobileNo.text(),
+                    "UanNO": self.lineEdit_UanNo.text(),
+                    "PfNo": self.lineEdit_PfNo.text(),
+                    "EsiNo": self.lineEdit_EsiNo.text(),
+                    "Site": self.comboBox_site.currentText(),
+                    "Department": self.comboBox_Depart.currentText(),
+                    "Designation": self.comboBox_Desig.currentText(),
+                    "Catagory": self.comboBox_Categ.currentText(),
+                    "PF_Allowance": self.comboBox_PFAllow.currentText(),
+                    "Esi_Allowance": self.comboBox_ESIAllow.currentText(),
+                    "Esi_Location": self.comboBox_EsiLocation.currentText(),
+                    "Attendance_Award": self.comboBox_AttnAwar_2.currentText()
+                }
+            except Exception as Dict_err:
+                print("Please check dictionary")
+                return Dict_err
+            # insert into Database NewEmployee
+            try:
+                columns = ','.join("'" + str(x).replace('/', '_') + "'" for x in employeeData.keys())
+                values = ','.join("'" + str(x).replace('/', '_') + "'" for x in employeeData.values())
+                sql = "INSERT INTO %s( %s ) VALUES (%s);" % ('NewEmployees', columns, values)
+                #print(sql)
+                c.execute(sql)
+                connection.commit()
+                connection.close()
+                #print("Databasse Created")
+            except Exception as err:
+                return err
     def Message(self):
         var = self.inputvalidator()
         if var is not None:
                 mesg = "{var} Required".format(var=var)
-                DialogNewEmployee.show()
                 self.NewEmployeeWindow = QtWidgets.QDialog()
-                # self.NewEmployeeWindow = QtWidgets.QMainWindow()
                 self.ui = Ui_Dialog(mesg)
                 self.ui.setupUi(self.NewEmployeeWindow)
                 self.NewEmployeeWindow.show()
         else:
-                mesg = "Please check once ?\nAll ComboBox is Filled accordingly"
-                DialogNewEmployee.show()
-                self.NewEmployeeWindow = QtWidgets.QDialog()
-                # self.NewEmployeeWindow = QtWidgets.QMainWindow()
-                self.ui = Ui_Dialog(mesg)
-                self.ui.setupUi(self.NewEmployeeWindow)
-                self.NewEmployeeWindow.show()
+                Value = self.Insert_to_Database()
+                if Value is None:
+                    mesg = "Data Inserted Succesfully"
+                    self.NewEmployeeWindow = QtWidgets.QDialog()
+                    self.ui = Ui_Dialog(mesg)
+                    self.ui.setupUi(self.NewEmployeeWindow)
+                    self.NewEmployeeWindow.show()
+                    self.clearform()
+                    WKNO = self.getdb_length()
+                    next = str(WKNO)
+                    self.LineEdit_WkNo.setText(next)
+                else:
+                    msg = "error ?\n{Value}".format(Value = Value)
+                    self.NewEmployeeWindow = QtWidgets.QDialog()
+                    self.ui = Ui_Dialog(msg)
+                    self.ui.setupUi(self.NewEmployeeWindow)
+                    self.NewEmployeeWindow.show()
     def inputvalidator(self):
-        wkno = self.get_length()
-        Next = str(wkno)
-        self.LineEdit_WkNo.setText(Next)
         name = self.lineEdit_name.text()
         nameln=len(name)
         father = self.lineEdit_FatherName.text()
@@ -169,7 +262,7 @@ class Ui_DialogNewEmployee(object):
         # personal Details
         wkno = self.get_length()
         Next = str(wkno)
-        self.LineEdit_WkNo.setText(Next)
+        #self.LineEdit_WkNo.setText(Next)
         name = self.lineEdit_name.text()
 
         father = self.lineEdit_FatherName.text()
@@ -211,8 +304,8 @@ class Ui_DialogNewEmployee(object):
                 "esiloc":ESI_Locat,
                 "attawrd":attawrd
         }
-        print(self.Fieldname)
-        print(employeeData)
+        #print(self.Fieldname)
+        #print(employeeData)
 
         return employeeData
     def Insert_emp(self):
@@ -737,22 +830,22 @@ class Ui_DialogNewEmployee(object):
 "border:2px solid blue;\n"
 "}")
         self.LineEdit_WkNo.setInputMask("")
-        wkno = self.get_length()
+        wkno = self.getdb_length()
         ln = str(wkno)
         self.LineEdit_WkNo.setText(ln)
         self.LineEdit_WkNo.setClearButtonEnabled(True)
         self.LineEdit_WkNo.setObjectName("LineEdit_WkNo")
-        self.pushButton_Add = QtWidgets.QPushButton(self.groupBox_newemp)
-        self.pushButton_Add.setGeometry(QtCore.QRect(590, 470, 71, 41))
+        self.pushButton_Clear = QtWidgets.QPushButton(self.groupBox_newemp)
+        self.pushButton_Clear.setGeometry(QtCore.QRect(590, 470, 71, 41))
         font = QtGui.QFont()
         font.setFamily("MS Sans Serif")
         font.setPointSize(12)
         font.setBold(True)
         font.setWeight(75)
-        self.pushButton_Add.setFont(font)
-        self.pushButton_Add.setStyleSheet("color: rgb(255, 255, 255);\n"
+        self.pushButton_Clear.setFont(font)
+        self.pushButton_Clear.setStyleSheet("color: rgb(255, 255, 255);\n"
 "background-color: rgb(255, 170, 0);")
-        self.pushButton_Add.setObjectName("pushButton_Add")
+        self.pushButton_Clear.setObjectName("pushButton_Clear")
         self.pushButton_Save = QtWidgets.QPushButton(self.groupBox_newemp)
         self.pushButton_Save.setGeometry(QtCore.QRect(484, 471, 81, 41))
         font = QtGui.QFont()
@@ -788,7 +881,7 @@ class Ui_DialogNewEmployee(object):
         self.PersonalDetails.raise_()
         self.DepartDetails.raise_()
         self.LineEdit_WkNo.raise_()
-        self.pushButton_Add.raise_()
+        self.pushButton_Clear.raise_()
         self.pushButton_Save.raise_()
         self.pushButton_Close.raise_()
         self.calendarWidget.raise_()
@@ -798,10 +891,11 @@ class Ui_DialogNewEmployee(object):
         self.retranslateUi(DialogNewEmployee)
         #saving data on clicked of PushButton
         # ***************_________________________**************
-        self.pushButton_Save.clicked.connect(self.Insert_emp)
+        self.pushButton_Save.clicked.connect(self.Message)
         # ***************_________________________**************
-        #self.pushButton_Add.clicked.connect(self.get_empdetails)
-        self.pushButton_Add.clicked.connect(self.Message)
+        #**** Clear All Text on Click of PushButton_Clear *******
+        self.pushButton_Clear.clicked.connect(self.clearform)
+        #********************************************************
         self.pushButton_Close.clicked.connect(DialogNewEmployee.close)
         self.calendarWidget.clicked['QDate'].connect(self.dateEdit_Dob.setDate)
         #self.pushButton_calender.clicked.connect(self.calendarWidget.close)
@@ -828,8 +922,8 @@ class Ui_DialogNewEmployee(object):
         DialogNewEmployee.setTabOrder(self.comboBox_ESIAllow, self.comboBox_EsiLocation)
         DialogNewEmployee.setTabOrder(self.comboBox_EsiLocation, self.comboBox_AttnAwar_2)
         DialogNewEmployee.setTabOrder(self.comboBox_AttnAwar_2, self.pushButton_Save)
-        DialogNewEmployee.setTabOrder(self.pushButton_Save, self.pushButton_Add)
-        DialogNewEmployee.setTabOrder(self.pushButton_Add, self.pushButton_Close)
+        DialogNewEmployee.setTabOrder(self.pushButton_Save, self.pushButton_Clear)
+        DialogNewEmployee.setTabOrder(self.pushButton_Clear, self.pushButton_Close)
         DialogNewEmployee.setTabOrder(self.pushButton_Close, self.LineEdit_WkNo)
         DialogNewEmployee.setTabOrder(self.LineEdit_WkNo, self.calendarWidget)
 
@@ -911,7 +1005,7 @@ class Ui_DialogNewEmployee(object):
         self.PersonalDetails.setText(_translate("DialogNewEmployee", "Personal Details"))
         self.DepartDetails.setText(_translate("DialogNewEmployee", "Departmental Details"))
         self.LineEdit_WkNo.setPlaceholderText(_translate("DialogNewEmployee", "Work Man NO"))
-        self.pushButton_Add.setText(_translate("DialogNewEmployee", "Add"))
+        self.pushButton_Clear.setText(_translate("DialogNewEmployee", "Clear"))
         self.pushButton_Save.setText(_translate("DialogNewEmployee", "Save"))
         self.pushButton_Close.setText(_translate("DialogNewEmployee", "Close"))
         self.pushButton_calender.setText(_translate("DialogNewEmployee", "Cal"))
