@@ -8,17 +8,20 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from NewEmployee import Ui_DialogNewEmployee
-import csv
-import os
-from colorama import Fore,Back,Style
+#import csv
+#import os
+#from colorama import Fore,Back,Style
 
 class Ui_MainWindow(object):
     def NewEmployee(self):
-        self.NewEmployeeWindow = QtWidgets.QDialog()
-        #self.NewEmployeeWindow = QtWidgets.QMainWindow()
-        self.ui = Ui_DialogNewEmployee()
-        self.ui.setupUi(self.NewEmployeeWindow)
-        self.NewEmployeeWindow.show()
+        try:
+            self.NewEmployeeWindow = QtWidgets.QDialog()
+            #self.NewEmployeeWindow = QtWidgets.QMainWindow()
+            self.ui = Ui_DialogNewEmployee()
+            self.ui.setupUi(self.NewEmployeeWindow)
+            self.NewEmployeeWindow.show()
+        except Exception as err:
+            print(err)
 
 
     def setupUi(self, MainWindow):
